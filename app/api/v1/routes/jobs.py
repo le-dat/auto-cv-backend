@@ -28,7 +28,8 @@ def _make_payload(
         raise HTTPException(422, f"{field}: file or text required")
     if text:
         return InputPayload(text=text, filename="input.txt", content_type="text/plain")
-    assert file is not None
+    if file is None:
+        raise HTTPException(422, f"{field}: file or text required")
     filename = file.filename or "unknown"
     content_type = file.content_type or "application/octet-stream"
     return InputPayload(filename=filename, content_type=content_type)
