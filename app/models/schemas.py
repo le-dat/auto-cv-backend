@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, EmailStr
 
 class InputPayload(BaseModel):
     """Unified input. Exactly one of raw or text must be set."""
+
     raw: bytes | None = None
     text: str | None = None
     filename: str = "input.txt"

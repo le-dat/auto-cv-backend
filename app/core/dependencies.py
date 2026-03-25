@@ -1,5 +1,4 @@
 from app.repositories.job_repository import AbstractJobRepository, InMemoryJobRepository
-from app.core.config import settings
 
 
 # Default to in-memory repo. Override via dependency in production.

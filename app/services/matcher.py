@@ -91,5 +91,7 @@ class MatcherService:
             )
             return json.loads(raw)
         except (json.JSONDecodeError, AttributeError) as e:
-            log.error("matcher.suggestions.parse_error", raw=r.content[:200], error=str(e))
+            log.error(
+                "matcher.suggestions.parse_error", raw=r.content[:200], error=str(e)
+            )
             return []

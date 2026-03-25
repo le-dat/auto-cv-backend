@@ -49,7 +49,7 @@ async def _extract_structured(llm, text: str, label: str) -> dict:
         f"Extract structured information from this {label} and return valid JSON only. "
         f"Do NOT fabricate missing fields. Return valid JSON with these fields when present in the text:\n\n"
         f"{text[:4000]}\n\n"
-        f'Return JSON with the appropriate fields for a {label}. Output JSON only, no commentary.'
+        f"Return JSON with the appropriate fields for a {label}. Output JSON only, no commentary."
     )
     response = await llm.ainvoke(prompt)
     raw = response.content.strip()

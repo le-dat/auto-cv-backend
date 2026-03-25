@@ -1,6 +1,5 @@
 import httpx
 from app.services.context.base import ContextChunk
-from app.core.config import settings
 
 
 class HTTPContextProvider:

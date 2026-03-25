@@ -4,12 +4,10 @@ from app.models.schemas import JobRecord
 
 class AbstractJobRepository(ABC):
     @abstractmethod
-    async def save(self, job: JobRecord) -> str:
-        ...
+    async def save(self, job: JobRecord) -> str: ...
 
     @abstractmethod
-    async def get(self, job_id: str) -> JobRecord | None:
-        ...
+    async def get(self, job_id: str) -> JobRecord | None: ...
 
     @abstractmethod
     async def update_status(
@@ -18,8 +16,7 @@ class AbstractJobRepository(ABC):
         status: str,
         result: dict | None = None,
         error: str | None = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @abstractmethod
     async def list_done_cv_texts(self) -> list[str]:

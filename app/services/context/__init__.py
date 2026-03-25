@@ -49,14 +49,10 @@ class ContextRegistry:
         chunks: list[ContextChunk] = []
         for provider in self._active:
             if not await provider.is_ready():
-                log.debug(
-                    "context.provider.skipped", provider=provider.name
-                )
+                log.debug("context.provider.skipped", provider=provider.name)
                 continue
             try:
-                results = await provider.gather(
-                    query, top_k=settings.context_top_k
-                )
+                results = await provider.gather(query, top_k=settings.context_top_k)
                 chunks.extend(results)
                 log.debug(
                     "context.provider.ok",

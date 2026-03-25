@@ -1,10 +1,11 @@
 from typing import Protocol, runtime_checkable, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
 class ContextChunk:
     """Dynamic context — retrieved at runtime (FAISS, DB, HTTP)."""
+
     content: str
     source: str
     score: float = 1.0
@@ -17,6 +18,7 @@ class KnowledgeDoc:
     Claude reads the full file with its markdown structure intact.
     For non-Anthropic providers, content is prepended to the prompt as a text section.
     """
+
     title: str
     content: str
     filename: str
@@ -46,8 +48,6 @@ class KnowledgeDoc:
 class ContextProvider(Protocol):
     name: str
 
-    async def is_ready(self) -> bool:
-        ...
+    async def is_ready(self) -> bool: ...
 
-    async def gather(self, query: str, top_k: int) -> list[ContextChunk]:
-        ...
+    async def gather(self, query: str, top_k: int) -> list[ContextChunk]: ...

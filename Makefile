@@ -37,6 +37,9 @@ install:
 	fi
 	$(PIP) install -r requirements.txt
 	$(PIP) install -r requirements-dev.txt
+	@if [ -d ".git" ]; then \
+		$(BIN)/pre-commit install; \
+	fi
 
 lint:
 	$(RUFF) check .

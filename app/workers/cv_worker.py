@@ -4,7 +4,6 @@ from arq.connections import ArqRedis
 from app.agents.workflow import workflow
 from app.agents.state import WorkflowState
 from app.models.schemas import InputPayload
-from app.core.config import settings
 
 log = structlog.get_logger()
 

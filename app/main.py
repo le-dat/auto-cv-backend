@@ -16,9 +16,7 @@ log = structlog.get_logger()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create shared Redis pool — injected into routes via app.state.redis
-    app.state.redis = await create_pool(
-        RedisSettings.from_dsn(settings.redis_url)
-    )
+    app.state.redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
     log.info("startup.redis.ready")
 
     # Startup: load persisted FAISS index from disk (skips rebuild on every restart)

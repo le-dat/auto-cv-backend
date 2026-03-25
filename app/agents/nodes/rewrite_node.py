@@ -1,5 +1,4 @@
 import structlog
-from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from app.agents.state import WorkflowState
 from app.core.llm_factory import LLMFactory
@@ -44,7 +43,9 @@ def _build_message(state: WorkflowState, prompt_text: str) -> HumanMessage:
         return HumanMessage(content=content)
     else:
         doc_sections = "\n\n".join(doc.to_text_section() for doc in docs)
-        full_text = f"{doc_sections}\n\n---\n\n{prompt_text}" if doc_sections else prompt_text
+        full_text = (
+            f"{doc_sections}\n\n---\n\n{prompt_text}" if doc_sections else prompt_text
+        )
         return HumanMessage(content=full_text)
 
 

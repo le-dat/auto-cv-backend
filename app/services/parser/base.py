@@ -6,5 +6,4 @@ class ParserStrategy(Protocol):
     media_types: list[str]
     extensions: list[str]
 
-    async def extract_text(self, raw: bytes) -> str:
-        ...
+    async def extract_text(self, raw: bytes) -> str: ...
