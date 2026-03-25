@@ -13,7 +13,7 @@ langgraph==0.2.56
 langgraph-checkpoint==2.0.1
 
 # Workflow
-arq==0.25.2
+arq==0.27.0
 
 # Database
 sqlalchemy[asyncio]==2.0.35
