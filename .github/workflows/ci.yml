@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          make install
+
+      - name: Lint and format check
+        run: |
+          make lint
+          make check-format
+
+      - name: Type check
+        run: make type-check
+
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          REDIS_URL: redis://localhost:6379/0
+          LLM_PROVIDER: mock
+          OPENAI_API_KEY: sk-mock
+        run: make test
+
+      - name: Security scan (bandit)
+        run: |
+          pip install bandit
+          bandit -r app -f txt --exclude tests
+
+      - name: Dependency vulnerability check (safety)
+        run: |
+          pip install safety
+          safety check --ignore 63898
