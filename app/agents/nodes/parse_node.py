@@ -3,6 +3,7 @@ import structlog
 from app.agents.state import WorkflowState
 from app.services.parser import ParserService
 from app.core.llm_factory import LLMFactory
+from app.models.schemas import CVData, JDData
 from app.core.exceptions import ParseError
 from pydantic import ValidationError
 
@@ -19,18 +20,21 @@ async def run(state: WorkflowState) -> WorkflowState:
         cv_text = (
             await parser.parse_file(cv_inp.raw, cv_inp.filename, cv_inp.content_type)
             if cv_inp.raw
-            else await parser.parse_text(cv_inp.text)
+            else await parser.parse_text(cv_inp.text or "")
         )
         jd_text = (
             await parser.parse_file(jd_inp.raw, jd_inp.filename, jd_inp.content_type)
             if jd_inp.raw
-            else await parser.parse_text(jd_inp.text)
+            else await parser.parse_text(jd_inp.text or "")
         )
 
         llm = LLMFactory.create()
 
-        cv_data = await _extract_structured(llm, cv_text, "CV")
-        jd_data = await _extract_structured(llm, jd_text, "JD")
+        cv_data_raw = await _extract_structured(llm, cv_text, "CV")
+        jd_data_raw = await _extract_structured(llm, jd_text, "JD")
+
+        cv_data = CVData.model_validate(cv_data_raw)
+        jd_data = JDData.model_validate(jd_data_raw)
 
         return {
             **state,

@@ -8,9 +8,14 @@ log = structlog.get_logger()
 async def run(state: WorkflowState) -> WorkflowState:
     log.info("match_node.start", job_id=state["job_id"])
     matcher = MatcherService()
+    cv = state.get("cv_data")
+    jd = state.get("jd_data")
+    if not cv or not jd:
+        raise ValueError("CV and JD must be parsed before matching")
+
     match_result = await matcher.match(
-        cv=state["cv_data"],
-        jd=state["jd_data"],
+        cv=cv,
+        jd=jd,
         knowledge_docs=state.get("knowledge_docs", []),
         context_chunks=state.get("context_chunks", []),
     )

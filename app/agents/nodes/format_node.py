@@ -11,9 +11,22 @@ async def run(state: WorkflowState) -> WorkflowState:
         if c.source not in seen:
             seen.add(c.source)
             chunk_sources.append(c.source)
+    cv_markdown = state.get("new_cv_markdown") or "Format failed"
+    match_result = state.get("match_result")
+    if not match_result:
+        from app.models.schemas import MatchResult
+
+        match_result = MatchResult(
+            score=0,
+            matching_skills=[],
+            missing_skills=[],
+            strong_skills=[],
+            suggestions=[],
+            ats_keywords=[],
+        )
     result = GenerateResult(
-        cv_markdown=state["new_cv_markdown"],
-        match_result=state["match_result"],
+        cv_markdown=cv_markdown,
+        match_result=match_result,
         processing_time_ms=0,
         llm_model_used=settings.llm_provider,
         context_sources=doc_sources + chunk_sources,

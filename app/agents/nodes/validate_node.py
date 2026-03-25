@@ -7,11 +7,13 @@ log = structlog.get_logger()
 
 async def run(state: WorkflowState) -> WorkflowState:
     errors = []
-    for cls, key in [(CVData, "cv_data"), (JDData, "jd_data")]:
-        try:
-            cls.model_validate(state[key])
-        except Exception as e:
-            errors.append(f"{key}: {e}")
+    try:
+        if state["cv_data"]:
+            CVData.model_validate(state["cv_data"])
+        if state["jd_data"]:
+            JDData.model_validate(state["jd_data"])
+    except Exception as e:
+        errors.append(str(e))
     if errors:
         log.warning("validate_node.failed", job_id=state["job_id"], errors=errors)
         return {**state, "error": "; ".join(errors), "current_step": "validate"}

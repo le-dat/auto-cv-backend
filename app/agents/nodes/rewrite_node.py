@@ -1,4 +1,5 @@
 import structlog
+from typing import Any
 from langchain_core.messages import HumanMessage
 from app.agents.state import WorkflowState
 from app.core.llm_factory import LLMFactory
@@ -38,7 +39,7 @@ def _build_message(state: WorkflowState, prompt_text: str) -> HumanMessage:
     docs = state.get("knowledge_docs", [])
 
     if settings.llm_provider == "claude" and docs:
-        content = [doc.to_anthropic_block() for doc in docs]
+        content: list[Any] = [doc.to_anthropic_block() for doc in docs]
         content.append({"type": "text", "text": prompt_text})
         return HumanMessage(content=content)
     else:
@@ -59,11 +60,17 @@ async def run(state: WorkflowState) -> WorkflowState:
         )
         dynamic_context = f"\nSimilar past CVs / additional context:\n{lines}"
 
+    cv = state.get("cv_data")
+    jd = state.get("jd_data")
+    match_res = state.get("match_result")
+    if not cv or not jd or not match_res:
+        raise ValueError("CV, JD, and Match Result must be present before rewrite")
+
     prompt_text = PROMPT_TEMPLATE.format(
-        cv_json=state["cv_data"].model_dump_json(indent=2),
-        jd_json=state["jd_data"].model_dump_json(indent=2),
-        match_json=state["match_result"].model_dump_json(indent=2),
-        missing_skills=state["match_result"].missing_skills,
+        cv_json=cv.model_dump_json(indent=2),
+        jd_json=jd.model_dump_json(indent=2),
+        match_json=match_res.model_dump_json(indent=2),
+        missing_skills=match_res.missing_skills,
         dynamic_context=dynamic_context,
     )
 
@@ -76,4 +83,13 @@ async def run(state: WorkflowState) -> WorkflowState:
     )
 
     response = await llm.ainvoke([message])
-    return {**state, "new_cv_markdown": response.content, "current_step": "rewrite"}
+    content = response.content
+    if isinstance(content, list):
+        # Handle cases where response might be content blocks
+        text_content = "\n".join(
+            c["text"] for c in content if isinstance(c, dict) and "text" in c
+        )
+    else:
+        text_content = str(content)
+
+    return {**state, "new_cv_markdown": text_content, "current_step": "rewrite"}

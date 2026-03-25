@@ -41,7 +41,7 @@ class InMemoryJobRepository(AbstractJobRepository):
     async def update_status(
         self,
         job_id: str,
-        status: str,
+        status: Any,  # Use Any or the actual Literal type
         result: Any | None = None,
         error: str | None = None,
     ) -> None:
@@ -81,8 +81,8 @@ class PostgresJobRepository(AbstractJobRepository):
     async def update_status(
         self,
         job_id: str,
-        status: str,
-        result: dict | None = None,
+        status: Any,
+        result: Union[JobRecord, dict, Any, None] = None,
         error: str | None = None,
     ) -> None:
         raise NotImplementedError("Use InMemoryJobRepository in tests")

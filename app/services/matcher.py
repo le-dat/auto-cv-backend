@@ -82,8 +82,16 @@ class MatcherService:
         )
         r = await self.llm.ainvoke(prompt)
         try:
+            content = r.content
+            if isinstance(content, list):
+                raw = "\n".join(
+                    c["text"] for c in content if isinstance(c, dict) and "text" in c
+                )
+            else:
+                raw = str(content)
+
             raw = (
-                r.content.strip()
+                raw.strip()
                 .removeprefix("```json")
                 .removeprefix("```")
                 .removesuffix("```")

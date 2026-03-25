@@ -6,8 +6,10 @@ log = structlog.get_logger()
 
 
 async def run(state: WorkflowState) -> WorkflowState:
-    cv = state["cv_data"]
-    jd = state["jd_data"]
+    cv = state.get("cv_data")
+    jd = state.get("jd_data")
+    if not cv or not jd:
+        raise ValueError("CV and JD data must be parsed before context retrieval")
     query = f"{jd.title} {' '.join(jd.required_skills)} {' '.join(cv.skills)}"
 
     # .md knowledge docs — always included, passed as Anthropic document blocks

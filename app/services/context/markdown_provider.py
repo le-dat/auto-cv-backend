@@ -44,7 +44,7 @@ class MarkdownDocProvider:
                     title=title,
                     content=content,
                     filename=str(f.relative_to(self._dir)),
-                    context_hint=_HINTS.get(hint_key, _DEFAULT_HINT),
+                    context_hint=_HINTS.get(hint_key or "", _DEFAULT_HINT),
                     always_include=True,
                 )
             )
