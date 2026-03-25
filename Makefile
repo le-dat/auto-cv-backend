@@ -2,10 +2,20 @@
 
 # Variables
 PYTHON = python3
-PIP = $(PYTHON) -m pip
-PYTEST = $(PYTHON) -m pytest
-RUFF = $(PYTHON) -m ruff
-MYPY = $(PYTHON) -m mypy
+VENV = .venv
+BIN = $(VENV)/bin
+
+# Check if we are inside a virtual env
+ifdef VIRTUAL_ENV
+	ENV_BIN =
+else
+	ENV_BIN = $(BIN)/
+endif
+
+PIP = $(ENV_BIN)pip
+PYTEST = $(ENV_BIN)pytest
+RUFF = $(ENV_BIN)ruff
+MYPY = $(ENV_BIN)mypy
 
 help:
 	@echo "Available commands:"
@@ -17,8 +27,14 @@ help:
 	@echo "  test         - Run tests with coverage"
 	@echo "  clean        - Remove temporary files"
 
-install:
+$(BIN)/activate:
+	$(PYTHON) -m venv $(VENV)
 	$(PIP) install --upgrade pip
+
+install:
+	@if [ -z "$$VIRTUAL_ENV" ] && [ ! -d "$(VENV)" ]; then \
+		$(MAKE) $(BIN)/activate; \
+	fi
 	$(PIP) install -r requirements.txt
 	$(PIP) install -r requirements-dev.txt
 

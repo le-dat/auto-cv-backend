@@ -10,7 +10,7 @@ langchain-openai==0.2.9
 langchain-groq==0.2.1
 langchain-anthropic==0.3.4
 langgraph==0.2.56
-langgraph-checkpoint==2.0.1
+langgraph-checkpoint==2.0.4
 
 # Workflow
 arq==0.27.0
