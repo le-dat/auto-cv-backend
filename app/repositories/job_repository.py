@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, Union
 from app.models.schemas import JobRecord
 
 
@@ -14,7 +15,7 @@ class AbstractJobRepository(ABC):
         self,
         job_id: str,
         status: str,
-        result: dict | None = None,
+        result: Union[JobRecord, dict, Any, None] = None,
         error: str | None = None,
     ) -> None: ...
 
@@ -41,13 +42,18 @@ class InMemoryJobRepository(AbstractJobRepository):
         self,
         job_id: str,
         status: str,
-        result: dict | None = None,
+        result: Any | None = None,
         error: str | None = None,
     ) -> None:
         if job := self._store.get(job_id):
             job.status = status
             if result is not None:
-                job.result = result
+                from app.models.schemas import GenerateResult
+
+                if isinstance(result, dict):
+                    job.result = GenerateResult(**result)
+                else:
+                    job.result = result
             if error is not None:
                 job.error = error
 

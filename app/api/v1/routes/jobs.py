@@ -28,7 +28,10 @@ def _make_payload(
         raise HTTPException(422, f"{field}: file or text required")
     if text:
         return InputPayload(text=text, filename="input.txt", content_type="text/plain")
-    return InputPayload(filename=file.filename, content_type=file.content_type)
+    assert file is not None
+    filename = file.filename or "unknown"
+    content_type = file.content_type or "application/octet-stream"
+    return InputPayload(filename=filename, content_type=content_type)
 
 
 @router.post("", response_model=JobCreateResponse, status_code=202)
@@ -75,4 +78,6 @@ async def get_job(
     job = await repo.get(job_id)
     if not job:
         raise HTTPException(404, f"Job {job_id} not found")
-    return JobStatusResponse(**job.model_dump())
+    data = job.model_dump()
+    data["job_id"] = data.pop("id")
+    return JobStatusResponse(**data)

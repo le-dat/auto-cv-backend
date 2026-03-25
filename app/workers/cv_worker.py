@@ -36,9 +36,12 @@ async def process_cv_job(
         if final.get("error"):
             await repo.update_status(job_id, "failed", error=final["error"])
             return
-        result = final["generate_result"]
-        result.processing_time_ms = round((time.monotonic() - t0) * 1000)
-        await repo.update_status(job_id, "done", result=result.model_dump())
+        result = final.get("generate_result")
+        if result:
+            result.processing_time_ms = round((time.monotonic() - t0) * 1000)
+            await repo.update_status(job_id, "done", result=result)
+        else:
+            await repo.update_status(job_id, "done")
         log.info(
             "worker.done",
             job_id=job_id,
