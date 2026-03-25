@@ -1,0 +1,33 @@
+# Env
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual envs
+venv/
+.venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+
+# Data (FAISS index persists here — don't commit)
+data/
+
+# Test artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Misc
+*.log
+.DS_Store

@@ -9,6 +9,10 @@ from app.core.llm_factory import LLMFactory
 log = structlog.get_logger()
 
 
+MATCH_SCALE = 100
+MAX_ATS_KEYWORDS = 20
+
+
 class MatcherService:
     def __init__(self, llm: BaseChatModel | None = None):
         self.llm = llm or LLMFactory.create()
@@ -31,7 +35,7 @@ class MatcherService:
         matching = list(cv_s_exp & jd_r_exp)
         missing = list(jd_r - cv_s_exp)
         strong = list(cv_s_exp & (jd_r_exp | jd_p))
-        score = round(len(matching) / max(len(jd_r), 1) * 100, 1)
+        score = round(len(matching) / max(len(jd_r), 1) * MATCH_SCALE, 1)
 
         return MatchResult(
             score=score,
@@ -39,7 +43,7 @@ class MatcherService:
             missing_skills=missing,
             strong_skills=strong,
             suggestions=await self._suggestions(cv, jd, missing),
-            ats_keywords=list(jd_r | jd_p)[:20],
+            ats_keywords=list(jd_r | jd_p)[:MAX_ATS_KEYWORDS],
         )
 
     def _parse_synonyms(self, docs: list[KnowledgeDoc]) -> dict[str, str]:
@@ -66,7 +70,9 @@ class MatcherService:
                             synonyms[alias] = canonical
         return synonyms
 
-    async def _suggestions(self, cv, jd, missing) -> list[str]:
+    async def _suggestions(
+        self, cv: CVData, jd: JDData, missing: list[str]
+    ) -> list[str]:
         prompt = (
             f"CV skills: {cv.skills}\n"
             f"JD requires: {jd.required_skills}\n"
@@ -84,6 +90,6 @@ class MatcherService:
                 .strip()
             )
             return json.loads(raw)
-        except (json.JSONDecodeError, AttributeError):
-            log.warning("matcher.suggestions.parse_error", raw=r.content[:200])
+        except (json.JSONDecodeError, AttributeError) as e:
+            log.error("matcher.suggestions.parse_error", raw=r.content[:200], error=str(e))
             return []

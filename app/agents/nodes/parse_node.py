@@ -4,13 +4,14 @@ from app.agents.state import WorkflowState
 from app.services.parser import ParserService
 from app.core.llm_factory import LLMFactory
 from app.core.exceptions import ParseError
+from pydantic import ValidationError
 
 log = structlog.get_logger()
-parser = ParserService()
 
 
 async def run(state: WorkflowState) -> WorkflowState:
     log.info("parse_node.start", job_id=state["job_id"])
+    parser = ParserService()
     try:
         cv_inp = state["cv_input"]
         jd_inp = state["jd_input"]
@@ -37,12 +38,12 @@ async def run(state: WorkflowState) -> WorkflowState:
             "jd_data": jd_data,
             "current_step": "parse",
         }
-    except Exception as e:
+    except (ValidationError, json.JSONDecodeError, ValueError) as e:
         log.error("parse_node.error", job_id=state["job_id"], error=str(e))
         raise ParseError(str(e)) from e
 
 
-async def _extract_structured(llm, text: str, label: str):
+async def _extract_structured(llm, text: str, label: str) -> dict:
     """Extract structured JSON from raw text using LLM."""
     prompt = (
         f"Extract structured information from this {label} and return valid JSON only. "

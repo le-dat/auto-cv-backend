@@ -4,7 +4,10 @@ import io
 
 class DocxParser:
     media_types = [
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        (
+            "application/vnd.openxmlformats-officedocument."
+            "wordprocessingml.document"
+        )
     ]
     extensions = ["docx"]
 

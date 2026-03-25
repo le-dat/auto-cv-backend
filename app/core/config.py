@@ -13,8 +13,9 @@ class Settings(BaseSettings):
     claude_model: str = "claude-3-5-haiku-20241022"
 
     # Infrastructure
-    database_url: str = "postgresql+asyncpg://user:pass@localhost/cvoptimizer"
+    database_url: str = ""  # Must be set in production
     redis_url: str = "redis://localhost:6379"
+    allowed_origins: list[str] = []  # Set explicit origins for credentials
 
     # Input — extend by adding to allowed_input_types
     max_file_size_mb: int = 10

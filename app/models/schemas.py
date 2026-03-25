@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal
 from pydantic import BaseModel, Field, EmailStr
 
@@ -78,8 +78,8 @@ class GenerateResult(BaseModel):
 class JobRecord(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     status: Literal["pending", "processing", "done", "failed"] = "pending"
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     result: GenerateResult | None = None
     error: str | None = None
 

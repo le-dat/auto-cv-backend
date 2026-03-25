@@ -59,7 +59,11 @@ class InMemoryJobRepository(AbstractJobRepository):
 
 
 class PostgresJobRepository(AbstractJobRepository):
-    """Production repository using SQLAlchemy 2.0 async."""
+    """
+    Production repository using SQLAlchemy 2.0 async.
+
+    Note: This is a placeholder. Implement before using in production.
+    """
 
     def __init__(self, db_session):
         self.db = db_session

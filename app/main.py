@@ -41,11 +41,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="CV Optimizer", lifespan=lifespan)
 
-# CORS
+# CORS — restrict credentials in production by setting allowed_origins explicitly
+_allow_origins = ["*"]
+if settings.allowed_origins:
+    _allow_origins = settings.allowed_origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_allow_origins,
+    allow_credentials=bool(settings.allowed_origins),
     allow_methods=["*"],
     allow_headers=["*"],
 )

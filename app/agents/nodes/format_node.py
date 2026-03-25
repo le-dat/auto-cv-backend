@@ -5,7 +5,12 @@ from app.core.config import settings
 
 async def run(state: WorkflowState) -> WorkflowState:
     doc_sources = [f"knowledge:{d.filename}" for d in state.get("knowledge_docs", [])]
-    chunk_sources = list({c.source for c in state.get("context_chunks", [])})
+    seen: set[str] = set()
+    chunk_sources: list[str] = []
+    for c in state.get("context_chunks", []):
+        if c.source not in seen:
+            seen.add(c.source)
+            chunk_sources.append(c.source)
     result = GenerateResult(
         cv_markdown=state["new_cv_markdown"],
         match_result=state["match_result"],
